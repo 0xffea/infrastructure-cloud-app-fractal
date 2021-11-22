@@ -38,6 +38,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: api
-          platforms: linux/amd64,darwin/arm64
+          platforms: linux/amd64
           push: true
-          tags: 0xffea/app:latest
+          tags: 0xffea/demo-fractal-api:latest
