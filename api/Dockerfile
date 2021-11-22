@@ -17,4 +17,4 @@ RUN pip install --upgrade pip && \
 COPY . .
 
 EXPOSE 80
-CMD exec uvicorn main:app --host 0.0.0.0
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
