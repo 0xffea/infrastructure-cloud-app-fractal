@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ghcr.io/0xffea/demo-fractal-api:latest
 
 jobs:
   docker:
@@ -40,4 +40,8 @@ jobs:
           context: api
           platforms: linux/amd64
           push: true
-          tags: ${{ github.repository }}/0xffea/demo-fractal-api:latest
+          tags: ${{ IMAGE_NAME }}
+      -
+        name: Inspect
+        run: |
+          docker buildx imagetools inspect ${{ IMAGE_NAME }}
