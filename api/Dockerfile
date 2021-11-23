@@ -8,13 +8,15 @@ ENV PYTHONWARNINGS=default
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app
 
+COPY entrypoint.sh /
+
 WORKDIR /app/
 
 COPY requirements.txt .
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt --no-cache-dir
 
-COPY . .
+COPY app .
 
 EXPOSE 80
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
