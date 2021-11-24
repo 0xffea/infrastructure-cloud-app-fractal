@@ -1,4 +1,5 @@
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9-slim
+# FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9-slim
+FROM tensorflow/tensorflow:2.7.0-gpu
 
 LABEL org.opencontainers.image.authors='info@argodis.de'
 LABEL org.opencontainers.image.url='https://argodis.de'

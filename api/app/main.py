@@ -49,6 +49,9 @@ async def get_random_fractal():
     queue_client.send_message(msg)
     return {"request-id": request_id}
 
+@app.get("/api/v1/fractal")
+async def get_fractal_image():
+    return {"OK": "OK"}
 
 @app.get("/items/{item_id}")
 async def read_item(item_id: int, q: Optional[str] = None):
