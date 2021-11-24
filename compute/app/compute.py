@@ -11,10 +11,11 @@ logger = logging.getLogger()
 
 
 class Fractal:
-    def __init__(self):
+    def __init__(self, iterations=100):
         self.resolution = (7168, 7168)
         self.range_x = (-2.0, 0.5)
         self.range_y = (-1.3, 1.3)
+        self.iterations = iterations
 
     def _meshgrid(self):
         x_res, y_res = self.resolution
@@ -47,8 +48,7 @@ class Fractal:
         xs = tf.constant(Z.astype(np.complex64))
         zs = tf.zeros_like(xs)
         ns = tf.Variable(tf.zeros_like(xs, tf.float32))
-        iterations = 10
-        for _ in range(iterations):
+        for _ in range(self.iterations):
             xs, zs, ns = self.step(xs, zs, ns)
         fractal = np.log(np.array(ns))
         fractal = 255 * fractal / fractal.max()

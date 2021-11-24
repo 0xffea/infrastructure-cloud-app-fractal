@@ -2,6 +2,7 @@ import uuid
 import sys
 import json
 
+from dataclasses import dataclass
 from typing import Optional
 
 from azure.storage.queue import QueueClient
@@ -19,6 +20,14 @@ queue_client = None
 blob_service_client = None
 
 app = FastAPI()
+
+
+@dataclass
+class Fractal:
+    iterations: int
+    frame: Optional[float] = None
+    description: Optional[str] = None
+    tax: Optional[float] = None
 
 
 @app.on_event("startup")
@@ -56,6 +65,10 @@ async def get_random_fractal():
     msg = json.dumps({"request_id": request_id})
     queue_client.send_message(msg)
     return {"request-id": request_id}
+
+@app.post("/api/v1/fractal/")
+async def create_item(fractal: Fractal):
+    return fractal
 
 @app.get("/api/v1/fractal/{request_id}")
 async def get_fractal_image(request_id):

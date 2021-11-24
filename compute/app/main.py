@@ -15,6 +15,7 @@ from compute import Fractal
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger()
 
+DEFAULT_ITERATIONS = 100
 
 keyVaultName = "xffee-key-vault"
 KVUri = f"https://{keyVaultName}.vault.azure.net"
@@ -58,9 +59,10 @@ for message in messages:
     print(f"Dequeueing message: {payload}")
     payload = json.loads(payload)
     request_id = payload["request_id"]
+    iterations = payload.get("iterations", DEFAULT_ITERATIONS)
     print(request_id)
     queue_client.delete_message(message.id, message.pop_receipt)
-    fractal = Fractal()
+    fractal = Fractal(iterations=iterations)
     logger.debug("Generating image...")
     data = fractal.generate()
     logger.debug("Uploading image to blob storage")
