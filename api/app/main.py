@@ -9,12 +9,14 @@ from azure.core.exceptions import ResourceNotFoundError
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 
 from fastapi import FastAPI
+from fastapi import HTTPException
+from fastapi.responses import StreamingResponse
 
 from config import settings
 
 
 queue_client = None
-container_client = None
+blob_service_client = None
 
 app = FastAPI()
 
@@ -22,7 +24,7 @@ app = FastAPI()
 @app.on_event("startup")
 async def startup():
     global queue_client
-    global container_client
+    global blob_service_client
 
     try:
         queue_client = QueueClient.from_connection_string(
@@ -32,9 +34,6 @@ async def startup():
 
         blob_service_client = BlobServiceClient.from_connection_string(
             settings.azure_storage_connection_string
-        )
-        container_client = blob_service_client.get_container_client(
-            "0xffea-storage-container-prod-westeurope"
         )
     except (ResourceNotFoundError, ValueError):
         sys.exit(1)
@@ -58,9 +57,19 @@ async def get_random_fractal():
     queue_client.send_message(msg)
     return {"request-id": request_id}
 
-@app.get("/api/v1/fractal")
-async def get_fractal_image():
-    return {"OK": "OK"}
+@app.get("/api/v1/fractal/{request_id}")
+async def get_fractal_image(request_id):
+    blob_client = blob_service_client.get_blob_client(
+        container="0xffea-storage-container-prod-westeurope",
+        blob=request_id
+    )
+    try:
+        stream = blob_client.download_blob()
+    except ResourceNotFoundError:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    return StreamingResponse(stream.chunks(), media_type="image/png")
+
 
 @app.get("/items/{item_id}")
 async def read_item(item_id: int, q: Optional[str] = None):
