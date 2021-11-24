@@ -1,6 +1,7 @@
 import sys
 import json
 import logging
+import time
 
 from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
@@ -41,9 +42,7 @@ try:
         storage_connection_string,
         "0xffea-storage-queue-prod-westeurope"
     )
-except ResourceNotFoundError:
-    sys.exit(1)
-except ValueError:
+except (ResourceNotFoundError, ValueError):
     sys.exit(1)
 
 try:
@@ -52,19 +51,22 @@ try:
 except ResourceNotFoundError:
     sys.exit(1)
 
-messages = queue_client.receive_messages()
+while True:
+    messages = queue_client.receive_messages()
 
-for message in messages:
-    payload = message.content
-    print(f"Dequeueing message: {payload}")
-    payload = json.loads(payload)
-    request_id = payload["request_id"]
-    iterations = payload.get("iterations", DEFAULT_ITERATIONS)
-    print(request_id)
-    queue_client.delete_message(message.id, message.pop_receipt)
-    fractal = Fractal(iterations=iterations)
-    logger.debug("Generating image...")
-    data = fractal.generate()
-    logger.debug("Uploading image to blob storage")
-    blob_client = container_client.get_blob_client(request_id)
-    blob_client.upload_blob(data, blob_type="BlockBlob")
+    for message in messages:
+        payload = message.content
+        print(f"Dequeueing message: {payload}")
+        payload = json.loads(payload)
+        request_id = payload["request_id"]
+        iterations = payload.get("iterations", DEFAULT_ITERATIONS)
+        print(request_id)
+        queue_client.delete_message(message.id, message.pop_receipt)
+        fractal = Fractal(iterations=iterations)
+        logger.info("Generating image...")
+        data = fractal.generate()
+        logger.info("Uploading image to blob storage")
+        blob_client = container_client.get_blob_client(request_id)
+        blob_client.upload_blob(data, blob_type="BlockBlob")
+
+    time.sleep(3)
