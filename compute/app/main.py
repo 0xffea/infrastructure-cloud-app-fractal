@@ -1,5 +1,6 @@
 import sys
 import json
+import logging
 
 from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
@@ -9,8 +10,10 @@ from azure.core.exceptions import ResourceNotFoundError
 
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, __version__
 
-
 from compute import Fractal
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger()
 
 
 keyVaultName = "xffed-key-vault"
@@ -58,6 +61,8 @@ for message in messages:
     print(request_id)
     queue_client.delete_message(message.id, message.pop_receipt)
     fractal = Fractal()
+    logger.debug("Generating image...")
     data = fractal.generate()
+    logger.debug("Uploading image to blob storage")
     blob_client = container_client.get_blob_client(request_id)
     blob_client.upload_blob(data, blob_type="BlockBlob")
