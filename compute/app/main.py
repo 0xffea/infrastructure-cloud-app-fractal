@@ -7,6 +7,12 @@ from azure.storage.queue import QueueClient
 from azure.core.exceptions import ServiceRequestError
 from azure.core.exceptions import ResourceNotFoundError
 
+from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, __version__
+
+
+from compute import Fractal
+
+
 keyVaultName = "xffed-key-vault"
 KVUri = f"https://{keyVaultName}.vault.azure.net"
 secretName = "0xffeasaprod-connection-string"
@@ -36,11 +42,22 @@ except ResourceNotFoundError:
 except ValueError:
     sys.exit(1)
 
+try:
+    blob_service_client = BlobServiceClient.from_connection_string(storage_connection_string)
+    container_client = blob_service_client.get_container_client("0xffea-storage-container-prod-westeurope")
+except ResourceNotFoundError:
+    sys.exit(1)
+
 messages = queue_client.receive_messages()
 
 for message in messages:
     payload = message.content
     print(f"Dequeueing message: {payload}")
     payload = json.loads(payload)
-    print(payload["request_id"])
+    request_id = payload["request_id"]
+    print(request_id)
     queue_client.delete_message(message.id, message.pop_receipt)
+    fractal = Fractal()
+    data = fractal.generate()
+    blob_client = container_client.get_blob_client(request_id)
+    blob_client.upload_blob(data, blob_type="BlockBlob")

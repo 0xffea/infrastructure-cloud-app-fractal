@@ -8,6 +8,9 @@ mypy = "*"
 
 [packages]
 tensorflow = "*"
+numpy = "*"
+Pillow = "*"
+
 azure-identity = "*"
 azure-keyvault-secrets = "*"
 azure-storage-blob = "*"
