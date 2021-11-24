@@ -6,6 +6,7 @@ from typing import Optional
 
 from azure.storage.queue import QueueClient
 from azure.core.exceptions import ResourceNotFoundError
+from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 
 from fastapi import FastAPI
 
@@ -13,6 +14,7 @@ from config import settings
 
 
 queue_client = None
+container_client = None
 
 app = FastAPI()
 
@@ -20,14 +22,21 @@ app = FastAPI()
 @app.on_event("startup")
 async def startup():
     global queue_client
+    global container_client
+
     try:
         queue_client = QueueClient.from_connection_string(
             conn_str=settings.azure_storage_connection_string,
             queue_name=settings.azure_storage_queue_name,
         )
-    except ResourceNotFoundError:
-        sys.exit(1)
-    except ValueError:
+
+        blob_service_client = BlobServiceClient.from_connection_string(
+            settings.azure_storage_connection_string
+        )
+        container_client = blob_service_client.get_container_client(
+            "0xffea-storage-container-prod-westeurope"
+        )
+    except (ResourceNotFoundError, ValueError):
         sys.exit(1)
 
 

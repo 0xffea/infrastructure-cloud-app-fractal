@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger()
 
 
-keyVaultName = "xffed-key-vault"
+keyVaultName = "xffee-key-vault"
 KVUri = f"https://{keyVaultName}.vault.azure.net"
 secretName = "0xffeasaprod-connection-string"
 
