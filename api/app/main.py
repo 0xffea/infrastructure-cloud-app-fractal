@@ -1,5 +1,6 @@
 import uuid
 import sys
+import json
 
 from typing import Optional
 
@@ -44,7 +45,7 @@ async def get_health():
 @app.get("/random")
 async def get_random_fractal():
     request_uuid = str(uuid.uuid4())
-    msg = {"uuid": request_uuid}
+    msg = json.dumps({"uuid": request_uuid})
     queue_client.send_message(msg)
     return {"request-id": request_uuid}
 
