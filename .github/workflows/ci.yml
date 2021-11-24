@@ -44,7 +44,7 @@ jobs:
           tags: ${{ env.IMAGE_NAME }}
       -
         name: Build and push compute
-        id: docker_build
+        id: docker_build_compute
         uses: docker/build-push-action@v2
         with:
           context: compute
