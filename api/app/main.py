@@ -44,10 +44,10 @@ async def get_health():
 
 @app.get("/random")
 async def get_random_fractal():
-    request_uuid = str(uuid.uuid4())
-    msg = json.dumps({"uuid": request_uuid})
+    request_id = str(uuid.uuid4())
+    msg = json.dumps({"request_id": request_id})
     queue_client.send_message(msg)
-    return {"request-id": request_uuid}
+    return {"request-id": request_id}
 
 
 @app.get("/items/{item_id}")

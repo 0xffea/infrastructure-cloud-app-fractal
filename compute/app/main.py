@@ -39,7 +39,8 @@ except ValueError:
 messages = queue_client.receive_messages()
 
 for message in messages:
-    print("Dequeueing message: " + message.content)
+    payload = message.content
+    print(f"Dequeueing message: {payload}")
     payload = json.loads(payload)
-    print(payload.request_id)
+    print(payload["request_id"])
     queue_client.delete_message(message.id, message.pop_receipt)
