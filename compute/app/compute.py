@@ -1,8 +1,13 @@
 import io
+import logging
 
 import tensorflow as tf
 import numpy as np
 import PIL
+
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger()
 
 
 class Fractal:
