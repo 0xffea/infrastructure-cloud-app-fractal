@@ -21,13 +21,23 @@ blob_service_client = None
 
 app = FastAPI()
 
+@dataclass
+class Frame:
+    x: int = None
+    y: int = None
+    x1: int = None
+    y1: int = None
+
+@dataclass
+class Resolution:
+    x: int = None
+    y: int = None
 
 @dataclass
 class Fractal:
     iterations: Optional[int]= None
-    frame: Optional[float] = None
-    description: Optional[str] = None
-    tax: Optional[float] = None
+    resolution: Optional[Resolution] = None
+    frame: Optional[Frame] = None
 
 
 @app.on_event("startup")
@@ -67,11 +77,22 @@ async def get_random_fractal():
     return {"request-id": request_id}
 
 @app.post("/api/v1/fractal/")
-async def create_item(fractal: Fractal):
+async def generate_fractal(fractal: Fractal):
     request_id = str(uuid.uuid4())
     msg = {"request_id": request_id}
-    if fractal.iterations:
-        msg.update({"iterations": fractal.iterations})
+    if iterations := fractal.iterations:
+        msg.update({"iterations": iterations})
+    if resolution := fractal.resolution:
+        msg.update({"resolution": {"x": resolution.x, "y": resolution.y}})
+    if frame := fractal.frame:
+        msg.update({
+            "frame": {
+                "x": frame.x,
+                "y": frame.y,
+                "x1": frame.x1,
+                "y1": frame.y1
+            }
+        })
     msg = json.dumps(msg)
     queue_client.send_message(msg)
     return {"request-id": request_id}
@@ -85,11 +106,7 @@ async def get_fractal_image(request_id):
     try:
         stream = blob_client.download_blob()
     except ResourceNotFoundError:
-        raise HTTPException(status_code=404, detail="Item not found")
+        raise HTTPException(status_code=404, detail="Image not found")
 
     return StreamingResponse(stream.chunks(), media_type="image/png")
 
-
-@app.get("/items/{item_id}")
-async def read_item(item_id: int, q: Optional[str] = None):
-    return {"item_id": item_id, "q": q}

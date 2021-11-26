@@ -11,6 +11,7 @@ mypy = "*"
 numpy = "*"
 Pillow = "*"
 
+azure-data-tables = "*"
 azure-identity = "*"
 azure-keyvault-secrets = "*"
 azure-storage-blob = "*"

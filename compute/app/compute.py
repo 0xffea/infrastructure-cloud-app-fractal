@@ -1,3 +1,12 @@
+# coding: utf-8
+
+# --------------------------------------------------------------------------
+# 2021
+# --------------------------------------------------------------------------
+"""
+Classes and functions used in Fractal app.
+"""
+
 import io
 import logging
 
@@ -11,16 +20,18 @@ logger = logging.getLogger()
 
 
 class Fractal:
-    def __init__(self, iterations=100):
-        self.resolution = (7168, 7168)
+    def __init__(self, frame, iterations=100, resolution=(7168, 7168)):
+        self.resolution = resolution
         self.range_x = (-2.0, 0.5)
         self.range_y = (-1.3, 1.3)
         self.iterations = iterations
+        self.frame = frame
 
     def _meshgrid(self):
         x_res, y_res = self.resolution
         x_min, x_max = self.range_x
         y_min, y_max = self.range_y
+        x_min, x_max, y_min, y_max = self.frame
         h_x = (x_max - x_min) / x_res
         h_y = (y_max - y_min) / y_res
         return np.mgrid[y_min:y_max:h_y, x_min:x_max:h_x]
@@ -28,7 +39,6 @@ class Fractal:
     @staticmethod
     def _export(a, fmt='png'):
         a = np.uint8(a)
-        img = PIL.Image.fromarray(a)
         img_byte_arr = io.BytesIO()
         PIL.Image.fromarray(a).save(img_byte_arr, fmt)
         return img_byte_arr.getvalue()
